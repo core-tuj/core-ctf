@@ -14,16 +14,24 @@ const STORAGE_KEY = 'core-ctf:sound';
 
 type Note = { freq: number; start: number; dur: number };
 
+/*
+ * Level sengaja dijaga di kisaran -8 s/d -11 dBFS puncak. Versi pertama
+ * memakai puncak 0.07 (-23 dBFS) dengan nada 90 ms — terukur benar secara
+ * sinyal, tapi praktis tidak terdengar di speaker laptop.
+ */
+const SOLVE_PEAK = 0.3;
+const FIRST_BLOOD_PEAK = 0.38;
+
 const SOLVE_NOTES: Note[] = [
-  { freq: 659.25, start: 0, dur: 0.09 }, // E5
-  { freq: 987.77, start: 0.08, dur: 0.13 }, // B5
+  { freq: 659.25, start: 0, dur: 0.16 }, // E5
+  { freq: 987.77, start: 0.1, dur: 0.34 }, // B5
 ];
 
 const FIRST_BLOOD_NOTES: Note[] = [
-  { freq: 1046.5, start: 0, dur: 0.08 }, // C6
-  { freq: 1318.51, start: 0.07, dur: 0.08 }, // E6
-  { freq: 1567.98, start: 0.14, dur: 0.08 }, // G6
-  { freq: 2093.0, start: 0.21, dur: 0.26 }, // C7
+  { freq: 1046.5, start: 0, dur: 0.12 }, // C6
+  { freq: 1318.51, start: 0.09, dur: 0.12 }, // E6
+  { freq: 1567.98, start: 0.18, dur: 0.12 }, // G6
+  { freq: 2093.0, start: 0.27, dur: 0.55 }, // C7
 ];
 
 let context: AudioContext | null = null;
@@ -61,13 +69,12 @@ export function isSoundMuted(): boolean {
   }
 }
 
-function play(notes: Note[], type: OscillatorType, peak: number) {
-  if (isSoundMuted()) return;
-
-  const ac = audioContext();
-  if (!ac) return;
-  if (ac.state === 'suspended') void ac.resume().catch(() => {});
-
+function schedule(
+  ac: AudioContext,
+  notes: Note[],
+  type: OscillatorType,
+  peak: number
+) {
   const now = ac.currentTime;
 
   for (const note of notes) {
@@ -94,12 +101,34 @@ function play(notes: Note[], type: OscillatorType, peak: number) {
   }
 }
 
+function play(notes: Note[], type: OscillatorType, peak: number) {
+  if (isSoundMuted()) return;
+
+  const ac = audioContext();
+  if (!ac) return;
+
+  if (ac.state === 'suspended') {
+    // Penjadwalan harus menunggu context benar-benar berjalan. Kalau tidak,
+    // currentTime masih beku saat nada dijadwalkan, dan begitu context
+    // resume seluruh nada sudah lewat waktunya lalu hilang tanpa bunyi.
+    void ac
+      .resume()
+      .then(() => schedule(ac, notes, type, peak))
+      .catch(() => {});
+    return;
+  }
+
+  schedule(ac, notes, type, peak);
+}
+
 export function playSolveSound() {
-  play(SOLVE_NOTES, 'sine', 0.07);
+  // Triangle, bukan sine: harmoniknya membuat nada lebih terdengar
+  // pada level puncak yang sama.
+  play(SOLVE_NOTES, 'triangle', SOLVE_PEAK);
 }
 
 export function playFirstBloodSound() {
-  play(FIRST_BLOOD_NOTES, 'triangle', 0.11);
+  play(FIRST_BLOOD_NOTES, 'triangle', FIRST_BLOOD_PEAK);
 }
 
 /* -------------------------------------------------------------------------- */
