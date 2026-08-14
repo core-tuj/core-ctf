@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import { PageHeader } from '@/components/layout/page-header';
+import { NotificationSettings } from '@/components/profile/notification-settings';
 import { ProfileForm } from '@/components/profile/profile-form';
 import { SolveHistory } from '@/components/profile/solve-history';
 import { RankPanel } from '@/components/ui/rank-badge';
@@ -103,6 +104,11 @@ export default async function ProfilePage() {
             name={profile?.name ?? ''}
             avatarUrl={profile?.avatar_url ?? null}
           />
+        </section>
+
+        <section>
+          <h2 className="label-micro mb-2">Notifikasi</h2>
+          <NotificationSettings />
         </section>
 
         <section>
