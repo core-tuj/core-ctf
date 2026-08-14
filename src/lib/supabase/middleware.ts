@@ -10,6 +10,7 @@ const PROTECTED_PREFIXES = [
   '/challenges',
   '/leaderboard',
   '/teams',
+  '/players',
   '/profile',
   '/admin',
 ];

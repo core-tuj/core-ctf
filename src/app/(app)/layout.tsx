@@ -3,7 +3,7 @@ import { AlertTriangle } from 'lucide-react';
 
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { SiteHeader } from '@/components/layout/site-header';
-import { FirstBloodNotifier } from '@/components/realtime/first-blood-notifier';
+import { SolveNotifier } from '@/components/realtime/solve-notifier';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { createClient } from '@/lib/supabase/server';
 
@@ -80,8 +80,8 @@ export default async function AppLayout({
       </div>
 
       {/* Dipasang di layout, bukan di halaman tertentu, supaya notifikasi
-          first blood muncul di mana pun user sedang berada. */}
-      <FirstBloodNotifier currentUserId={user.id} />
+          solve muncul di mana pun user sedang berada. */}
+      <SolveNotifier currentUserId={user.id} />
     </div>
   );
 }

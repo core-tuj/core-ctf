@@ -263,6 +263,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      solve_feed: {
+        Row: {
+          solve_id: string;
+          created_at: string;
+          points_awarded: number;
+          is_first_blood: boolean;
+          challenge_id: string;
+          challenge_title: string;
+          challenge_category: ChallengeCategory;
+          user_id: string;
+          user_name: string;
+          avatar_url: string | null;
+          user_total_score: number;
+          team_id: string | null;
+          team_name: string | null;
+        };
+        Relationships: [];
+      };
       first_blood_feed: {
         Row: {
           solve_id: string;
@@ -354,3 +372,4 @@ export type LeaderboardTeam =
   Database['public']['Views']['leaderboard_teams']['Row'];
 export type FirstBloodEntry =
   Database['public']['Views']['first_blood_feed']['Row'];
+export type SolveFeedEntry = Database['public']['Views']['solve_feed']['Row'];

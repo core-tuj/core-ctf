@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { Logo } from '@/components/layout/logo';
 import { MobileNav } from '@/components/layout/mobile-nav';
+import { SoundToggle } from '@/components/layout/sound-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
+import { RankBadge } from '@/components/ui/rank-badge';
 import type { Profile } from '@/types/database';
 
 export function SiteHeader({
@@ -25,13 +27,17 @@ export function SiteHeader({
           </span>
         </Link>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2">
+          <RankBadge score={profile.total_score} className="hidden sm:inline-flex" />
+
           <div className="flex items-baseline gap-1.5">
             <span className="label-micro">skor</span>
             <span className="tabular font-mono text-sm font-semibold text-primary">
               {profile.total_score}
             </span>
           </div>
+
+          <SoundToggle />
 
           <UserMenu
             name={profile.name}

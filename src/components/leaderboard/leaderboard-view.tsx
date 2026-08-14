@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 import {
@@ -8,6 +9,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/components/ui/avatar';
+import { RankBadge } from '@/components/ui/rank-badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -41,6 +43,8 @@ function Row({
   rank,
   name,
   subtitle,
+  subtitleHref,
+  href,
   avatarUrl,
   score,
   solveCount,
@@ -50,6 +54,8 @@ function Row({
   rank: number;
   name: string;
   subtitle: string | null;
+  subtitleHref?: string | null;
+  href: string;
   avatarUrl?: string | null;
   score: number;
   solveCount: number;
@@ -83,18 +89,37 @@ function Row({
             </AvatarFallback>
           </Avatar>
           <span className="min-w-0">
-            <span className="block truncate text-[0.8125rem] leading-tight">
-              {name}
+            <span className="flex items-center gap-1.5">
+              <Link
+                href={href}
+                className="truncate text-[0.8125rem] leading-tight underline-offset-2 hover:underline"
+              >
+                {name}
+              </Link>
               {highlight ? (
-                <span className="ml-1.5 font-mono text-[0.65rem] text-primary">
+                <span className="shrink-0 font-mono text-[0.65rem] text-primary">
                   kamu
                 </span>
               ) : null}
+              <RankBadge
+                score={score}
+                showNumeral={false}
+                className="hidden shrink-0 md:inline-flex"
+              />
             </span>
             {subtitle ? (
-              <span className="block truncate text-[0.6875rem] leading-tight text-muted-foreground">
-                {subtitle}
-              </span>
+              subtitleHref ? (
+                <Link
+                  href={subtitleHref}
+                  className="block truncate text-[0.6875rem] leading-tight text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+                >
+                  {subtitle}
+                </Link>
+              ) : (
+                <span className="block truncate text-[0.6875rem] leading-tight text-muted-foreground">
+                  {subtitle}
+                </span>
+              )
             ) : null}
           </span>
         </div>
@@ -262,7 +287,15 @@ export function LeaderboardView({
                   key={player.id}
                   rank={player.rank}
                   name={player.name}
+                  href={
+                    player.id === currentUserId
+                      ? '/profile'
+                      : `/players/${player.id}`
+                  }
                   subtitle={player.team_name}
+                  subtitleHref={
+                    player.team_id ? `/teams/${player.team_id}` : null
+                  }
                   avatarUrl={player.avatar_url}
                   score={player.total_score}
                   solveCount={player.solve_count}
@@ -281,6 +314,7 @@ export function LeaderboardView({
                 key={team.id}
                 rank={team.rank}
                 name={team.name}
+                href={`/teams/${team.id}`}
                 subtitle={`${team.member_count} anggota`}
                 score={team.total_score}
                 solveCount={team.solve_count}

@@ -1,13 +1,13 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import { PageHeader } from '@/components/layout/page-header';
 import { ProfileForm } from '@/components/profile/profile-form';
+import { SolveHistory } from '@/components/profile/solve-history';
+import { RankPanel } from '@/components/ui/rank-badge';
 import { StatRow } from '@/components/ui/stat-row';
-import { CATEGORY_META } from '@/lib/categories';
 import { createClient } from '@/lib/supabase/server';
-import { cn } from '@/lib/utils';
-import type { ChallengeCategory } from '@/types/database';
 
 export const metadata: Metadata = {
   title: 'Profil',
@@ -17,8 +17,6 @@ const dateFormat = new Intl.DateTimeFormat('id-ID', {
   day: '2-digit',
   month: 'short',
   year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit',
 });
 
 export default async function ProfilePage() {
@@ -57,10 +55,6 @@ export default async function ProfilePage() {
         .in('id', challengeIds)
     : { data: [] };
 
-  const challengeById = new Map(
-    (challenges ?? []).map((challenge) => [challenge.id, challenge])
-  );
-
   let teamName: string | null = null;
   if (profile?.team_id) {
     const { data: team } = await supabase
@@ -80,7 +74,9 @@ export default async function ProfilePage() {
         description="Ubah identitas tampilanmu dan lihat riwayat solve."
       />
 
-      <div className="space-y-8">
+      <div className="space-y-6">
+        <RankPanel score={profile?.total_score ?? 0} />
+
         <StatRow
           items={[
             {
@@ -112,97 +108,45 @@ export default async function ProfilePage() {
         <section>
           <h2 className="label-micro mb-2">Akun</h2>
           <dl className="divide-y divide-border rounded-md border border-border bg-surface text-sm">
-            {[
-              { label: 'Email', value: user.email ?? '—' },
-              { label: 'Role', value: profile?.role ?? '—' },
-              { label: 'Tim', value: teamName ?? 'Mode individu' },
-              {
-                label: 'Bergabung',
-                value: profile?.created_at
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5">
+              <dt className="text-muted-foreground">Email</dt>
+              <dd className="truncate font-mono text-xs">
+                {user.email ?? '—'}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5">
+              <dt className="text-muted-foreground">Role</dt>
+              <dd className="font-mono text-xs">{profile?.role ?? '—'}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5">
+              <dt className="text-muted-foreground">Tim</dt>
+              <dd className="truncate font-mono text-xs">
+                {profile?.team_id && teamName ? (
+                  <Link
+                    href={`/teams/${profile.team_id}`}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {teamName}
+                  </Link>
+                ) : (
+                  'Mode individu'
+                )}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5">
+              <dt className="text-muted-foreground">Bergabung</dt>
+              <dd className="font-mono text-xs">
+                {profile?.created_at
                   ? dateFormat.format(new Date(profile.created_at))
-                  : '—',
-              },
-            ].map((row) => (
-              <div
-                key={row.label}
-                className="flex items-center justify-between gap-4 px-4 py-2.5"
-              >
-                <dt className="text-muted-foreground">{row.label}</dt>
-                <dd className="truncate font-mono text-xs">{row.value}</dd>
-              </div>
-            ))}
+                  : '—'}
+              </dd>
+            </div>
           </dl>
         </section>
 
         <section>
           <h2 className="label-micro mb-2">Riwayat solve ({solves.length})</h2>
-
-          {solves.length === 0 ? (
-            <div className="rounded-md border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-              Belum ada challenge yang diselesaikan.
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-md border border-border bg-surface">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="label-micro py-2 pl-3 pr-2 text-left font-normal">
-                      Challenge
-                    </th>
-                    <th className="label-micro hidden px-2 py-2 text-left font-normal sm:table-cell">
-                      Waktu
-                    </th>
-                    <th className="label-micro w-16 py-2 pl-2 pr-3 text-right font-normal">
-                      Poin
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {solves.map((solve) => {
-                    const challenge = challengeById.get(solve.challenge_id);
-                    const meta = challenge
-                      ? CATEGORY_META[challenge.category as ChallengeCategory]
-                      : null;
-
-                    return (
-                      <tr
-                        key={solve.id}
-                        className="border-b border-border last:border-b-0"
-                      >
-                        <td className="py-2 pl-3 pr-2">
-                          <div className="flex min-w-0 items-center gap-2">
-                            {meta ? (
-                              <span
-                                className={cn(
-                                  'h-2 w-2 shrink-0 rounded-sm',
-                                  meta.accent
-                                )}
-                                aria-hidden="true"
-                              />
-                            ) : null}
-                            <span className="truncate font-mono text-[0.8125rem]">
-                              {challenge?.title ?? 'Challenge dihapus'}
-                            </span>
-                            {solve.is_first_blood ? (
-                              <span className="shrink-0 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-destructive">
-                                first blood
-                              </span>
-                            ) : null}
-                          </div>
-                        </td>
-                        <td className="hidden px-2 py-2 font-mono text-[0.6875rem] text-muted-foreground sm:table-cell">
-                          {dateFormat.format(new Date(solve.created_at))}
-                        </td>
-                        <td className="tabular py-2 pl-2 pr-3 text-right font-mono text-xs text-primary">
-                          {solve.points_awarded}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <SolveHistory solves={solves} challenges={challenges ?? []} />
         </section>
       </div>
     </>
