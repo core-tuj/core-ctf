@@ -63,6 +63,11 @@ const config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        /* Permukaan panel solid — pengganti kartu translusen + blur */
+        surface: {
+          DEFAULT: 'hsl(var(--surface))',
+          raised: 'hsl(var(--surface-raised))',
+        },
 
         /* ---- Brand tokens (raw hex, dipakai untuk gradient/glow) ---- */
         cyber: {

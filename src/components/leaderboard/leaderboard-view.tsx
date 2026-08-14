@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Droplet, Flag, Radio, Trophy, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import {
   Avatar,
@@ -15,10 +14,9 @@ import { cn } from '@/lib/utils';
 import type { LeaderboardPlayer, LeaderboardTeam } from '@/types/database';
 
 const ROW_LIMIT = 100;
-/** Beberapa solve bisa masuk beruntun; jangan re-fetch untuk tiap-tiap event. */
 const REFETCH_DEBOUNCE_MS = 400;
 
-function rankStyle(rank: number) {
+function rankTone(rank: number) {
   if (rank === 1) return 'text-yellow-400';
   if (rank === 2) return 'text-slate-300';
   if (rank === 3) return 'text-amber-600';
@@ -33,6 +31,12 @@ function initials(name: string) {
     .join('');
 }
 
+/**
+ * Baris tabel setinggi ~36px, bukan kartu.
+ * Scoreboard dibaca dengan cara memindai kolom dari atas ke bawah — kartu
+ * dengan padding tebal memaksa mata melompat dan memuat lebih sedikit peserta
+ * per layar.
+ */
 function Row({
   rank,
   name,
@@ -53,56 +57,95 @@ function Row({
   highlight: boolean;
 }) {
   return (
-    <motion.li
+    <motion.tr
       layout
-      transition={{ type: 'spring', stiffness: 400, damping: 38 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 42 }}
       className={cn(
-        'flex items-center gap-3 rounded-lg border border-border bg-card/20 px-3 py-2.5',
-        highlight && 'border-primary/50 bg-primary/10'
+        'border-b border-border last:border-b-0',
+        highlight && 'bg-primary/[0.07]'
       )}
     >
-      <span
+      <td
         className={cn(
-          'w-8 shrink-0 text-center font-mono text-sm font-bold tabular-nums',
-          rankStyle(rank)
+          'tabular w-10 py-1.5 pl-3 pr-1 text-right font-mono text-xs font-semibold',
+          rankTone(rank)
         )}
       >
         {rank}
-      </span>
+      </td>
 
-      <Avatar className="h-8 w-8">
-        {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-        <AvatarFallback>{initials(name)}</AvatarFallback>
-      </Avatar>
+      <td className="py-1.5 pl-3 pr-2">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Avatar className="h-6 w-6 border-0">
+            {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
+            <AvatarFallback className="text-[0.6rem]">
+              {initials(name)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="min-w-0">
+            <span className="block truncate text-[0.8125rem] leading-tight">
+              {name}
+              {highlight ? (
+                <span className="ml-1.5 font-mono text-[0.65rem] text-primary">
+                  kamu
+                </span>
+              ) : null}
+            </span>
+            {subtitle ? (
+              <span className="block truncate text-[0.6875rem] leading-tight text-muted-foreground">
+                {subtitle}
+              </span>
+            ) : null}
+          </span>
+        </div>
+      </td>
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">
-          {name}
-          {highlight ? (
-            <span className="ml-2 font-mono text-xs text-primary">kamu</span>
-          ) : null}
-        </p>
-        {subtitle ? (
-          <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
-        ) : null}
-      </div>
-
-      <span className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
-        <Flag className="h-3 w-3" />
+      <td className="tabular hidden px-2 py-1.5 text-right font-mono text-xs text-muted-foreground sm:table-cell">
         {solveCount}
-      </span>
+      </td>
 
-      {firstBloodCount > 0 ? (
-        <span className="hidden items-center gap-1 text-xs text-destructive sm:flex">
-          <Droplet className="h-3 w-3" />
-          {firstBloodCount}
-        </span>
-      ) : null}
+      <td
+        className={cn(
+          'tabular hidden px-2 py-1.5 text-right font-mono text-xs sm:table-cell',
+          firstBloodCount > 0 ? 'text-destructive' : 'text-muted-foreground/40'
+        )}
+      >
+        {firstBloodCount}
+      </td>
 
-      <span className="w-16 shrink-0 text-right font-mono text-sm font-bold tabular-nums text-primary">
+      <td className="tabular w-20 py-1.5 pl-2 pr-3 text-right font-mono text-sm font-semibold text-primary">
         {score}
-      </span>
-    </motion.li>
+      </td>
+    </motion.tr>
+  );
+}
+
+function Table({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="overflow-x-auto rounded-md border border-border bg-surface">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-border">
+            <th className="label-micro w-10 py-2 pl-3 pr-1 text-right font-normal">
+              #
+            </th>
+            <th className="label-micro py-2 pl-3 pr-2 text-left font-normal">
+              Nama
+            </th>
+            <th className="label-micro hidden px-2 py-2 text-right font-normal sm:table-cell">
+              Solve
+            </th>
+            <th className="label-micro hidden px-2 py-2 text-right font-normal sm:table-cell">
+              FB
+            </th>
+            <th className="label-micro w-20 py-2 pl-2 pr-3 text-right font-normal">
+              Skor
+            </th>
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </div>
   );
 }
 
@@ -127,8 +170,6 @@ export function LeaderboardView({
   useEffect(() => {
     let active = true;
 
-    // Kalau Realtime gagal disiapkan, tabel tetap menampilkan data yang sudah
-    // dirender server — indikatornya saja yang tidak pernah jadi "live".
     let supabase: ReturnType<typeof createClient>;
     try {
       supabase = createClient();
@@ -161,8 +202,6 @@ export function LeaderboardView({
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'solves' },
         () => {
-          // View tidak bisa di-subscribe langsung; solve baru adalah sinyal
-          // untuk menarik ulang peringkat yang sudah dihitung database.
           if (debounce.current) clearTimeout(debounce.current);
           debounce.current = setTimeout(refetch, REFETCH_DEBOUNCE_MS);
         }
@@ -183,75 +222,73 @@ export function LeaderboardView({
       value={tab}
       onValueChange={(value) => setTab(value as 'players' | 'teams')}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <TabsList className="w-auto">
+      <div className="flex items-center justify-between gap-3">
+        <TabsList className="border-b-0">
           <TabsTrigger value="players">
-            <Trophy className="h-3.5 w-3.5" />
             Individu
-            <span className="font-mono text-xs opacity-70">
-              {players.length}
-            </span>
+            <span className="tabular opacity-60">{players.length}</span>
           </TabsTrigger>
           <TabsTrigger value="teams">
-            <Users className="h-3.5 w-3.5" />
             Tim
-            <span className="font-mono text-xs opacity-70">{teams.length}</span>
+            <span className="tabular opacity-60">{teams.length}</span>
           </TabsTrigger>
         </TabsList>
 
         <span
           className={cn(
-            'flex items-center gap-1.5 font-mono text-xs',
-            live ? 'text-primary' : 'text-muted-foreground'
+            'flex items-center gap-1.5 font-mono text-[0.65rem] uppercase tracking-[0.12em]',
+            live ? 'text-primary' : 'text-muted-foreground/60'
           )}
         >
-          <Radio className={cn('h-3.5 w-3.5', live && 'animate-pulse')} />
-          {live ? 'live' : 'menyambung…'}
+          <span
+            className={cn(
+              'h-1.5 w-1.5 rounded-full',
+              live ? 'animate-pulse bg-primary' : 'bg-muted-foreground/40'
+            )}
+            aria-hidden="true"
+          />
+          {live ? 'live' : 'offline'}
         </span>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-5">
         {tab === 'players' ? (
           players.length === 0 ? (
             <EmptyState message="Belum ada pemain terdaftar." />
           ) : (
-            <ul className="space-y-2">
-              <AnimatePresence initial={false}>
-                {players.map((player) => (
-                  <Row
-                    key={player.id}
-                    rank={player.rank}
-                    name={player.name}
-                    subtitle={player.team_name}
-                    avatarUrl={player.avatar_url}
-                    score={player.total_score}
-                    solveCount={player.solve_count}
-                    firstBloodCount={player.first_blood_count}
-                    highlight={player.id === currentUserId}
-                  />
-                ))}
-              </AnimatePresence>
-            </ul>
+            <Table>
+              {players.map((player) => (
+                <Row
+                  key={player.id}
+                  rank={player.rank}
+                  name={player.name}
+                  subtitle={player.team_name}
+                  avatarUrl={player.avatar_url}
+                  score={player.total_score}
+                  solveCount={player.solve_count}
+                  firstBloodCount={player.first_blood_count}
+                  highlight={player.id === currentUserId}
+                />
+              ))}
+            </Table>
           )
         ) : teams.length === 0 ? (
           <EmptyState message="Belum ada tim yang dibuat." />
         ) : (
-          <ul className="space-y-2">
-            <AnimatePresence initial={false}>
-              {teams.map((team) => (
-                <Row
-                  key={team.id}
-                  rank={team.rank}
-                  name={team.name}
-                  subtitle={`${team.member_count} anggota`}
-                  score={team.total_score}
-                  solveCount={team.solve_count}
-                  firstBloodCount={team.first_blood_count}
-                  highlight={team.id === currentTeamId}
-                />
-              ))}
-            </AnimatePresence>
-          </ul>
+          <Table>
+            {teams.map((team) => (
+              <Row
+                key={team.id}
+                rank={team.rank}
+                name={team.name}
+                subtitle={`${team.member_count} anggota`}
+                score={team.total_score}
+                solveCount={team.solve_count}
+                firstBloodCount={team.first_blood_count}
+                highlight={team.id === currentTeamId}
+              />
+            ))}
+          </Table>
         )}
       </div>
     </Tabs>
@@ -260,9 +297,8 @@ export function LeaderboardView({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card/20 py-16 text-center">
-      <Trophy className="h-8 w-8 text-primary/60" />
-      <p className="text-sm text-muted-foreground">{message}</p>
+    <div className="rounded-md border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
+      {message}
     </div>
   );
 }

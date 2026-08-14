@@ -1,6 +1,7 @@
 'use client';
 
-import { LogOut, ShieldHalf, Users } from 'lucide-react';
+import Link from 'next/link';
+import { LogOut, ShieldHalf, UserRound, Users } from 'lucide-react';
 
 import { signOut } from '@/lib/actions/auth';
 import {
@@ -58,17 +59,26 @@ export function UserMenu({
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem disabled className="opacity-100">
-          <Users />
-          <span className="truncate text-muted-foreground">
-            {teamName ?? 'Mode individu'}
-          </span>
+        <DropdownMenuItem asChild>
+          <Link href="/profile">
+            <UserRound />
+            Profil
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link href="/teams">
+            <Users />
+            <span className="truncate">{teamName ?? 'Mode individu'}</span>
+          </Link>
         </DropdownMenuItem>
 
         {role === 'admin' ? (
-          <DropdownMenuItem disabled className="opacity-100">
-            <ShieldHalf />
-            <span className="text-muted-foreground">Role: admin</span>
+          <DropdownMenuItem asChild>
+            <Link href="/admin">
+              <ShieldHalf />
+              Panel admin
+            </Link>
           </DropdownMenuItem>
         ) : null}
 

@@ -1,8 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Flag } from 'lucide-react';
-
 import { ChallengeCard } from '@/components/challenges/challenge-card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CATEGORY_META, CATEGORY_ORDER } from '@/lib/categories';
@@ -39,15 +37,12 @@ export function ChallengeBoard({
 
   if (challenges.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-card/20 py-16 text-center">
-        <Flag className="h-8 w-8 text-primary/60" />
-        <div className="space-y-1">
-          <p className="text-sm font-medium">Belum ada challenge aktif</p>
-          <p className="text-sm text-muted-foreground">
-            Admin dapat mempublikasikan challenge dengan mengaktifkan{' '}
-            <code className="font-mono">is_active</code>.
-          </p>
-        </div>
+      <div className="rounded-md border border-dashed border-border px-4 py-10 text-center">
+        <p className="text-sm">Belum ada challenge aktif</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Admin mempublikasikan soal dengan mengaktifkan{' '}
+          <code className="font-mono">is_active</code>.
+        </p>
       </div>
     );
   }
@@ -60,33 +55,29 @@ export function ChallengeBoard({
       <TabsList>
         <TabsTrigger value="all">
           Semua
-          <span className="font-mono text-xs opacity-70">
-            {challenges.length}
-          </span>
+          <span className="tabular opacity-60">{challenges.length}</span>
         </TabsTrigger>
 
         {categories.map(({ category, count }) => {
           const meta = CATEGORY_META[category];
-          const Icon = meta.icon;
           return (
             <TabsTrigger key={category} value={category}>
-              <Icon className="h-3.5 w-3.5" />
+              <span
+                className={`h-1.5 w-1.5 rounded-sm ${meta.accent}`}
+                aria-hidden="true"
+              />
               {meta.label}
-              <span className="font-mono text-xs opacity-70">{count}</span>
+              <span className="tabular opacity-60">{count}</span>
             </TabsTrigger>
           );
         })}
       </TabsList>
 
-      {/* Grid berada di luar TabsContent: filter hanya mengubah daftar,
-          bukan mengganti panel, jadi animasi masuk kartu tetap konsisten. */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {visible.map((challenge, index) => (
-          <ChallengeCard
-            key={challenge.id}
-            challenge={challenge}
-            index={index}
-          />
+      {/* Grid di luar TabsContent: filter hanya mengubah daftar, bukan
+          mengganti panel. */}
+      <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        {visible.map((challenge) => (
+          <ChallengeCard key={challenge.id} challenge={challenge} />
         ))}
       </div>
     </Tabs>

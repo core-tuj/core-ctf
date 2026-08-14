@@ -179,8 +179,15 @@ muncul di sidebar.
 
 ## 4. Menambahkan soal
 
-> **Panel admin di aplikasi masih placeholder.** Untuk sekarang, soal
-> ditambahkan lewat SQL Editor Supabase.
+**Cara biasa: lewat Panel Admin di aplikasi.** Masuk sebagai admin →
+**Panel Admin** → **Challenge baru**. Di sana `admin_set_flag()` bekerja normal
+karena dipanggil dengan sesi admin yang valid.
+
+Untuk berkas soal, unggah ke Google Drive Anda, set aksesnya ke *"siapa saja
+yang memiliki link"*, lalu tempel link-nya ke kolom **Link berkas**.
+
+Sisa bagian ini hanya diperlukan kalau Anda ingin menambahkan soal langsung
+lewat SQL Editor — misalnya untuk impor massal.
 
 ### 4.1 Jebakan yang perlu diketahui lebih dulu
 

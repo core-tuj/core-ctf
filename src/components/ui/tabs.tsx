@@ -7,6 +7,11 @@ import { cn } from '@/lib/utils';
 
 const Tabs = TabsPrimitive.Root;
 
+/**
+ * Gaya underline, bukan pill di dalam kotak.
+ * Pill ganda (kotak luar + pill aktif) menambah dua lapisan visual tanpa
+ * menambah informasi; garis bawah cukup untuk menandai posisi.
+ */
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -14,7 +19,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      'flex w-full flex-wrap items-center gap-1 rounded-lg border border-border bg-card/20 p-1',
+      'flex w-full flex-wrap items-center gap-x-1 border-b border-border',
       className
     )}
     {...props}
@@ -29,9 +34,10 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors',
-      'hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-      'data-[state=active]:bg-primary/15 data-[state=active]:text-primary',
+      '-mb-px inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-2.5 py-2',
+      'font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground transition-colors',
+      'hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+      'data-[state=active]:border-primary data-[state=active]:text-primary',
       className
     )}
     {...props}
@@ -45,10 +51,7 @@ const TabsContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
-    className={cn(
-      'mt-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-      className
-    )}
+    className={cn('mt-5 focus-visible:outline-none', className)}
     {...props}
   />
 ));

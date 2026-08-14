@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import { Trophy } from 'lucide-react';
-
 import { Logo } from '@/components/layout/logo';
 import { MobileNav } from '@/components/layout/mobile-nav';
 import { UserMenu } from '@/components/layout/user-menu';
@@ -28,12 +26,11 @@ export function SiteHeader({
         </Link>
 
         <div className="ml-auto flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
-            <Trophy className="h-3.5 w-3.5 text-primary" />
-            <span className="font-mono text-sm font-semibold tabular-nums">
+          <div className="flex items-baseline gap-1.5">
+            <span className="label-micro">skor</span>
+            <span className="tabular font-mono text-sm font-semibold text-primary">
               {profile.total_score}
             </span>
-            <span className="sr-only">poin</span>
           </div>
 
           <UserMenu

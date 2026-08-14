@@ -26,22 +26,23 @@ function NavLink({
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
       className={cn(
-        'relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+        'relative flex items-center gap-2.5 py-1.5 pl-3 pr-2 text-[0.8125rem] transition-colors',
         active
-          ? 'text-primary'
-          : 'text-muted-foreground hover:bg-primary/5 hover:text-foreground'
+          ? 'font-medium text-primary'
+          : 'text-muted-foreground hover:text-foreground'
       )}
     >
       {active ? (
-        // layoutId membuat pill-nya menggeser mulus antar item saat pindah route
+        // Penanda garis tepi, bukan pill: satu elemen tipis sudah menunjukkan
+        // posisi tanpa menambah bidang baru di sidebar.
         <motion.span
           layoutId={`${layoutGroup}-active`}
-          className="absolute inset-0 rounded-md border border-primary/30 bg-primary/10"
-          transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+          className="absolute inset-y-0 left-0 w-0.5 bg-primary"
+          transition={{ type: 'spring', stiffness: 500, damping: 40 }}
         />
       ) : null}
-      <Icon className="relative h-4 w-4 shrink-0" />
-      <span className="relative">{item.label}</span>
+      <Icon className="h-3.5 w-3.5 shrink-0" />
+      <span>{item.label}</span>
     </Link>
   );
 }
@@ -58,7 +59,7 @@ export function SidebarNav({
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col gap-1" aria-label="Navigasi utama">
+    <nav className="flex flex-col gap-0.5" aria-label="Navigasi utama">
       {MAIN_NAV.map((item) => (
         <NavLink
           key={item.href}
@@ -71,7 +72,7 @@ export function SidebarNav({
 
       {isAdmin ? (
         <>
-          <p className="px-3 pb-1 pt-5 font-mono text-[0.65rem] uppercase tracking-widest text-muted-foreground/70">
+          <p className="label-micro px-3 pb-1.5 pt-5 text-muted-foreground/60">
             Admin
           </p>
           {ADMIN_NAV.map((item) => (

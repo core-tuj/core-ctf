@@ -8,13 +8,15 @@ export function PageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
       <div className="space-y-1">
-        <h1 className="font-mono text-2xl font-bold tracking-tight text-glow sm:text-3xl">
+        {/* Tanpa text-glow: judul halaman muncul di setiap layar, dan efek
+            yang selalu ada berhenti menandakan apa pun. */}
+        <h1 className="font-mono text-xl font-semibold tracking-tight">
           {title}
         </h1>
         {description ? (
-          <p className="max-w-2xl text-sm text-muted-foreground">
+          <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
             {description}
           </p>
         ) : null}

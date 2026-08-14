@@ -11,6 +11,8 @@ Harus dijalankan berurutan; file berikutnya bergantung pada objek di file sebelu
 | `20260814090200_rls_grants.sql` | RLS policy + GRANT level kolom |
 | `20260814090300_rpc.sql` | `submit_flag()`, `unlock_hint()`, `my_hints()`, tim, `admin_set_flag()` |
 | `20260814090400_views_realtime.sql` | view leaderboard/board + publication Realtime |
+| `20260814100000_membership_based_scoring.sql` | skor tim berbasis keanggotaan, batasan ganti tim dicabut |
+| `20260814110000_admin_hint_read.sql` | `admin_list_hints()` + kolom `has_flag` di `challenges_board` |
 | `seed.sql` | data contoh (dev only) |
 
 ## Cara apply
@@ -78,15 +80,26 @@ create unique index solves_first_blood_key
 `submit_flag()` juga mengambil `pg_advisory_xact_lock` per challenge, sehingga dua
 submit benar yang datang bersamaan diproses berurutan.
 
-**Skor individu & tim.** `apply_solve_score()` menambah `profiles.total_score`, dan
-jika user punya `team_id`, juga `teams.total_score`. Index unik parsial
-`(challenge_id, team_id) where team_id is not null` memastikan satu tim hanya
-mendapat poin sekali per challenge walau dua anggotanya submit.
+**Skor individu** = total `points_awarded` dari solve sendiri.
 
-**Ganti tim hanya boleh sebelum punya solve** (`assert_can_change_team()`). Tanpa
-aturan ini skor individu dan tim jadi tidak konsisten: solve lama tidak pernah
-masuk ke tim baru, dan memindahkannya akan double-count kalau dua anggota pernah
-menyelesaikan challenge yang sama.
+**Skor tim berbasis keanggotaan sekarang** (migrasi 06). Untuk setiap challenge
+yang pernah diselesaikan minimal satu anggota saat ini, diambil poin dari solve
+yang **paling awal** — "yang solve duluan yang menyumbang". Konsekuensinya:
+
+- bergabung tim membawa serta seluruh solve lama;
+- keluar dari tim menarik kembali kontribusinya;
+- satu challenge tidak pernah dihitung dua kali walau beberapa anggota
+  menyelesaikannya sebelum bergabung.
+
+Atribusi memakai `profiles.team_id`, bukan `solves.team_id` — kolom itu kini
+sekadar catatan historis. Karena delta tidak bisa dihitung lokal (satu
+perpindahan anggota bisa mengubah kontributor banyak challenge sekaligus),
+`recalc_team_score()` melakukan recompute penuh, dipicu trigger pada
+`solves` (insert/delete) dan pada `profiles.team_id` (update).
+
+Index unik `(challenge_id, team_id)` **dilepas** di migrasi 06: penjaminan
+pindah ke `DISTINCT ON`, dan index itu justru menimbulkan konflik palsu ketika
+anggota yang dulu solve sudah keluar dari tim.
 
 **Penalti hint** dihitung saat solve, bukan saat unlock:
 `points_awarded = max(static_score - Σ cost hint yang dibuka, 0)`. Biaya disimpan

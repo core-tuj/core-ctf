@@ -226,6 +226,8 @@ export type Database = {
           flag_format: string;
           is_active: boolean;
           created_at: string;
+          /** Apakah flag sudah dipasang. Hash-nya sendiri tidak pernah keluar. */
+          has_flag: boolean;
           solve_count: number;
           hint_count: number;
           solved_by_me: boolean;
@@ -312,6 +314,16 @@ export type Database = {
       admin_set_flag: {
         Args: { p_challenge_id: string; p_flag: string };
         Returns: { status: 'ok' };
+      };
+      // Satu-satunya cara admin membaca hint_text (kolomnya tidak di-GRANT).
+      admin_list_hints: {
+        Args: { p_challenge_id: string };
+        Returns: {
+          id: string;
+          hint_text: string;
+          cost: number;
+          order_index: number;
+        }[];
       };
       is_admin: {
         Args: { p_uid?: string };

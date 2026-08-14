@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { motion } from 'framer-motion';
-import { Lightbulb, Loader2, Lock, Unlock } from 'lucide-react';
+import { Loader2, Lock, Unlock } from 'lucide-react';
 
 import {
   fetchMyHints,
@@ -77,13 +77,7 @@ export function HintPanel({
 
   return (
     <section className="space-y-3">
-      <h3 className="flex items-center gap-2 text-sm font-semibold">
-        <Lightbulb className="h-4 w-4 text-primary" />
-        Hint
-        <span className="font-mono text-xs font-normal text-muted-foreground">
-          ({hintCount})
-        </span>
-      </h3>
+      <h3 className="label-micro">Hint ({hintCount})</h3>
 
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
@@ -97,7 +91,7 @@ export function HintPanel({
           {hints.map((hint) => (
             <li
               key={hint.hint_id}
-              className="rounded-md border border-border bg-card/20 p-3"
+              className="rounded border border-border bg-surface-raised px-3 py-2"
             >
               {hint.unlocked ? (
                 <motion.div

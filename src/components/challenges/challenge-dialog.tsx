@@ -1,10 +1,9 @@
 'use client';
 
-import { Download, Droplet, Terminal, Users } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 import { FlagForm } from '@/components/challenges/flag-form';
 import { HintPanel } from '@/components/challenges/hint-panel';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -27,23 +26,25 @@ export function ChallengeDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const meta = CATEGORY_META[challenge.category];
-  const Icon = meta.icon;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className={cn('gap-1', meta.badge)}>
-              <Icon className="h-3 w-3" />
+          <div className="flex items-center gap-2">
+            <span
+              className={cn('h-2 w-2 rounded-sm', meta.accent)}
+              aria-hidden="true"
+            />
+            <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-muted-foreground">
               {meta.label}
-            </Badge>
-            <Badge variant="secondary" className="font-mono">
+            </span>
+            <span className="tabular font-mono text-[0.65rem] text-primary">
               {challenge.static_score} poin
-            </Badge>
+            </span>
             {challenge.author ? (
-              <span className="text-xs text-muted-foreground">
-                oleh {challenge.author}
+              <span className="truncate font-mono text-[0.65rem] text-muted-foreground">
+                · {challenge.author}
               </span>
             ) : null}
           </div>
@@ -51,15 +52,11 @@ export function ChallengeDialog({
           <DialogTitle>{challenge.title}</DialogTitle>
 
           <DialogDescription asChild>
-            <div className="flex flex-wrap gap-x-4 gap-y-1">
-              <span className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {challenge.solve_count} solve
-              </span>
+            <div className="flex flex-wrap gap-x-3 font-mono text-[0.6875rem]">
+              <span className="tabular">{challenge.solve_count} solve</span>
               {challenge.first_blood_by ? (
-                <span className="flex items-center gap-1 text-destructive">
-                  <Droplet className="h-3 w-3" />
-                  First blood: {challenge.first_blood_by}
+                <span className="text-destructive">
+                  first blood: {challenge.first_blood_by}
                 </span>
               ) : null}
             </div>
@@ -76,11 +73,8 @@ export function ChallengeDialog({
 
         {challenge.connection_info ? (
           <div className="space-y-1.5">
-            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <Terminal className="h-3.5 w-3.5" />
-              Koneksi
-            </p>
-            <code className="block overflow-x-auto rounded-md border border-border bg-background/60 px-3 py-2 font-mono text-sm">
+            <p className="label-micro">Koneksi</p>
+            <code className="block overflow-x-auto rounded border border-border bg-background px-3 py-2 font-mono text-sm">
               {challenge.connection_info}
             </code>
           </div>

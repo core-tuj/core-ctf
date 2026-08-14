@@ -26,7 +26,13 @@
     --secondary-foreground: 0 0% 100%;
 
     --muted: 221 60% 14%;
-    --muted-foreground: 220 25% 72%;
+    --muted-foreground: 220 22% 62%;
+
+    /* Permukaan panel: warna solid, bukan lapisan transparan + blur.
+       Bidang datar dengan garis 1px terbaca lebih padat dan lebih mirip
+       perkakas ketimbang tumpukan kartu mengambang. */
+    --surface: 220 55% 10%;
+    --surface-raised: 220 50% 13%;
 
     --accent: 230 100% 70%; /* #6780ff */
     --accent-foreground: 219 85% 8%;
@@ -34,11 +40,11 @@
     --destructive: 0 100% 38%; /* #c20000 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 230 45% 22%;
-    --input: 230 45% 22%;
+    --border: 224 40% 19%;
+    --input: 224 40% 19%;
     --ring: 230 100% 70%; /* #6780ff */
 
-    --radius: 0.65rem;
+    --radius: 0.375rem;
   }
 }
 
@@ -53,19 +59,18 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    /* Grid halus saja. Radial glow besar di belakang konten membuat setiap
+       halaman terlihat seperti hero section, bukan perkakas kerja. */
     background-image:
-      radial-gradient(
-        1000px circle at 50% -20%,
-        rgba(0, 0, 147, 0.45),
-        transparent 60%
-      ),
-      linear-gradient(rgba(103, 128, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(103, 128, 255, 0.05) 1px, transparent 1px);
-    background-size:
-      100% 100%,
-      32px 32px,
-      32px 32px;
+      linear-gradient(rgba(103, 128, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(103, 128, 255, 0.035) 1px, transparent 1px);
+    background-size: 40px 40px;
     background-attachment: fixed;
+  }
+
+  /* Angka data selalu sejajar kolom */
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Scrollbar bernuansa cyber */
@@ -91,14 +96,21 @@
 }
 
 @layer utilities {
+  /* Glow disisakan untuk dua tempat saja: wordmark dan first blood.
+     Dipakai di mana-mana, efek ini justru meratakan hierarki. */
   .text-glow {
-    text-shadow: 0 0 18px rgba(103, 128, 255, 0.65);
+    text-shadow: 0 0 18px rgba(103, 128, 255, 0.5);
   }
   .text-glow-blood {
-    text-shadow: 0 0 18px rgba(194, 0, 0, 0.7);
+    text-shadow: 0 0 16px rgba(194, 0, 0, 0.6);
   }
-  /* Panel semi-transparan di atas #000093 agar teks tetap terbaca */
+
+  /* Label mikro di atas angka data */
+  .label-micro {
+    @apply font-mono text-[0.65rem] uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
   .panel {
-    @apply rounded-lg border border-border bg-card/25 backdrop-blur-sm;
+    @apply rounded-md border border-border bg-surface;
   }
 }
