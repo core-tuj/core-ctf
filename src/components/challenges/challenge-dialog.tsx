@@ -104,6 +104,7 @@ export function ChallengeDialog({
         <FlagForm
           challengeId={challenge.id}
           solved={challenge.solved_by_me}
+          flagFormat={challenge.flag_format}
         />
       </DialogContent>
     </Dialog>

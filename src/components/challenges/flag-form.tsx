@@ -85,9 +85,12 @@ function ResultAlert({ state }: { state: FlagFormState }) {
 export function FlagForm({
   challengeId,
   solved,
+  flagFormat,
 }: {
   challengeId: string;
   solved: boolean;
+  /** Petunjuk format dari admin, mis. `CORE{...}`. */
+  flagFormat: string;
 }) {
   const router = useRouter();
   const [state, formAction] = useActionState(submitFlagAction, initialState);
@@ -151,7 +154,7 @@ export function FlagForm({
           required
           autoComplete="off"
           spellCheck={false}
-          placeholder="CTF{...}"
+          placeholder={flagFormat || 'CTF{...}'}
           aria-label="Flag"
           className="font-mono"
         />
