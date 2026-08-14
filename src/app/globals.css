@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Aplikasi ini dark-mode only (Cyber theme).
+   * :root sudah memakai palette gelap, .dark hanya mirror agar
+   * komponen shadcn/ui yang mengecek class `dark` tetap konsisten.
+   */
+  :root,
+  .dark {
+    --background: 219 85% 8%; /* #030f26 */
+    --foreground: 213 100% 96%;
+
+    --card: 240 100% 29%; /* #000093 */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 221 80% 11%;
+    --popover-foreground: 213 100% 96%;
+
+    --primary: 230 100% 70%; /* #6780ff */
+    --primary-foreground: 219 85% 8%;
+
+    --secondary: 240 100% 29%; /* #000093 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 221 60% 14%;
+    --muted-foreground: 220 25% 72%;
+
+    --accent: 230 100% 70%; /* #6780ff */
+    --accent-foreground: 219 85% 8%;
+
+    --destructive: 0 100% 38%; /* #c20000 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 230 45% 22%;
+    --input: 230 45% 22%;
+    --ring: 230 100% 70%; /* #6780ff */
+
+    --radius: 0.65rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(
+        1000px circle at 50% -20%,
+        rgba(0, 0, 147, 0.45),
+        transparent 60%
+      ),
+      linear-gradient(rgba(103, 128, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(103, 128, 255, 0.05) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      32px 32px,
+      32px 32px;
+    background-attachment: fixed;
+  }
+
+  /* Scrollbar bernuansa cyber */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(230 45% 26%);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
+
+  ::selection {
+    background: #6780ff;
+    color: #030f26;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 18px rgba(103, 128, 255, 0.65);
+  }
+  .text-glow-blood {
+    text-shadow: 0 0 18px rgba(194, 0, 0, 0.7);
+  }
+  /* Panel semi-transparan di atas #000093 agar teks tetap terbaca */
+  .panel {
+    @apply rounded-lg border border-border bg-card/25 backdrop-blur-sm;
+  }
+}
